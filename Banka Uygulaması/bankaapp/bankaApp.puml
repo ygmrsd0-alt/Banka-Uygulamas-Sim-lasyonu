@@ -1,0 +1,124 @@
+@startuml
+
+abstract class Hesap {
+  - iban : String
+  - bakiye : double
+  + getIban() : String
+  + getBakiye() : double
+  + bakiyeDusur(tutar : double) : boolean
+  + hesapOzeti()
+}
+
+interface OdemeYapilabilir {
+  +bakiyeDusur(tutar: double): boolean
+}
+
+class VadesizHesap
+class VadeliHesap {
+  - vadeGun : int
+}
+class AltinHesabi {
+  - gram : double
+}
+class DovizHesabi {
+  - dovizTuru : String
+  - miktar : double
+}
+
+Hesap <|-- VadesizHesap
+Hesap <|-- VadeliHesap
+Hesap <|-- AltinHesabi
+Hesap <|-- DovizHesabi
+
+VadeliHesap ..|> OdemeYapilabilir
+VadesizHesap ..|> OdemeYapilabilir
+
+class Kullanici {
+  - ad : String
+  - tc : String
+  - hesaplar : List<Hesap>
+  - borclar : List<Borc>
+  + hesapEkle(h : Hesap)
+  + getHesaplar() : List<Hesap>
+  + getBorclar() : List<Borc>
+}
+
+Kullanici "1" o-- "*" Hesap
+
+abstract class Borc {
+  -aciklama: String
+  -tutar: double
+  -odendi: boolean
+  +getTutar(): double
+  +isOdendi(): boolean
+  +odendiIsaretle(): void
+}
+
+class KrediBorcu extends Borc
+class KrediKartiBorcu extends Borc
+
+Kullanici "1" o-- "*" Borc
+
+abstract class Odeme {
+  - ad : String
+  - tutar : double
+  + getTutar() : double
+  + odemeYap(h : Hesap)
+}
+
+class EgitimOdemesi
+class OsymOdemesi
+class KykOdemesi {
+  - geriOdemeli : boolean
+}
+class FaturaOdemesi
+class TrafikOdemesi
+class VergiOdemesi
+
+Odeme <|-- EgitimOdemesi
+Odeme <|-- OsymOdemesi
+Odeme <|-- KykOdemesi
+Odeme <|-- FaturaOdemesi
+Odeme <|-- TrafikOdemesi
+Odeme <|-- VergiOdemesi
+
+interface TransferService {
+  +havale(kaynak: Hesap, hedefIban: String, tutar: double): void
+}
+
+class TransferServiceImpl implements TransferService
+
+class VarlikService {
+  + toplamVarlikGoster(hesaplar : List<Hesap>)
+}
+
+class BorcService {
+  + borclariGoster(borclar : List<Borc>)
+}
+
+class Menu {
+  + anaMenu() : int
+  + hesapMenu() : int
+  + transferMenu() : int
+  + varlikMenu() : int
+  + odemeMenu() : int
+  + egitimOdemeMenu() : int
+  + faturaOdemeMenu() : int
+  + trafikVergiMenu() : int
+  + hesapSec(k : Kullanici) : Hesap
+  + tlHesapSec(k : Kullanici) : Hesap
+  + borcSec(borclar : List<Borc>) : int
+}
+
+class Bankaapp {
+  + main(args : String[])
+  + baslat()
+}
+
+Bankaapp --> Menu
+Bankaapp --> Kullanici
+Bankaapp --> TransferService
+Bankaapp --> VarlikService
+Bankaapp --> BorcService
+
+@enduml
